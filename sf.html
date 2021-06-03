@@ -1,0 +1,137 @@
+<style type="text/css">
+	canvas {
+                display:block;
+                margin:20px auto;
+                border:1px solid #666;
+                height:400px;
+                width:500px;
+            }
+</style>
+
+<script>
+	// alert('woo')
+
+	var frameRate = 1/40; // Seconds
+	var frameDelay = frameRate * 1000; // ms
+	var loopTimer = false;
+
+	var width = 100;
+	var ball = {
+					position: {
+								x: width/2,
+								y: 0},
+					velocity: {	
+								x: 10,
+								y: 0},
+					mass: 		0.1, //kg
+					radius: 	15, // 1px = 1cm
+					restitution:-0.7
+	};
+
+	// alert(ball.position.x)
+
+	var Cd = 0.47; // Dimensionless
+	var rho = 1.22; // kg / m^3
+	var A = Math.PI * ball.radius * ball.radius / (10000);
+	var ag = 9.81;
+	alert(A)
+
+</script>
+
+<script type="text/javascript">
+	var frameRate = 1/40; // Seconds
+	var frameDelay = frameRate * 1000; // ms
+	var loopTimer = false;
+
+	var width = 100;
+	var ball = {
+					position: {
+								x: width/2,
+								y: 0},
+					velocity: {	
+								x: 10,
+								y: 0},
+					mass: 		0.1, //kg
+					radius: 	15, // 1px = 1cm
+					restitution:-0.7
+	};
+
+	// alert(ball.position.x)
+
+	var Cd = 0.47; // Dimensionless
+	var rho = 1.22; // kg / m^3
+	var A = Math.PI * ball.radius * ball.radius / (10000);
+	var ag = 9.81;
+	alert(A)
+
+	var setup = function() {
+		canvas = document.getElementById("canvas");
+		ctx = canvas.getContext("2d");
+		
+		canvas.onmousemove = getMousePosition;
+		canvas.onmousedown = mouseDown;
+		canvas.onmouseup = mouseUp;
+		
+		ctx.fillStyle = 'red';
+		ctx.strokeStyle = '#000000';
+		loopTimer = setInterval(loop, frameDelay);
+	}
+
+
+	// Do physics
+	// Drag force: Fd = -1/2 * Cd * A * rho * v * v
+	var Fx = -0.5 * Cd * A * rho * ball.velocity.x * ball.velocity.x * ball.velocity.x / Math.abs(ball.velocity.x);
+	var Fy = -0.5 * Cd * A * rho * ball.velocity.y * ball.velocity.y * ball.velocity.y / Math.abs(ball.velocity.y);
+			
+	Fx = (isNaN(Fx) ? 0 : Fx);
+	Fy = (isNaN(Fy) ? 0 : Fy);
+			
+	// Calculate acceleration ( F = ma )
+	var ax = Fx / ball.mass;
+	var ay = ag + (Fy / ball.mass);
+
+	// Integrate to get velocity
+	ball.velocity.x += ax*frameRate;
+	ball.velocity.y += ay*frameRate;
+			
+	// Integrate to get position
+	ball.position.x += ball.velocity.x*frameRate*100;
+	ball.position.y += ball.velocity.y*frameRate*100;
+
+	// alert(-5 / Math.abs(-5))
+
+	// Handle collisions
+	if (ball.position.y > height - ball.radius) {
+		ball.velocity.y *= ball.restitution;
+		ball.position.y = height - ball.radius;
+	}
+	if (ball.position.x > width - ball.radius) {
+		ball.velocity.x *= ball.restitution;
+		ball.position.x = width - ball.radius;
+	}
+	if (ball.position.x < ball.radius) {
+		ball.velocity.x *= ball.restitution;
+		ball.position.x = ball.radius;
+	}
+
+	var mouseDown = function(e) {
+		if (e.which == 1) {
+			getMousePosition(e);
+			mouse.isDown = true;
+			ball.position.x = mouse.x;
+			ball.position.y = mouse.y;
+		}
+	}
+	var mouseUp = function(e) { 
+		if (e.which == 1) {
+			mouse.isDown = false;
+			ball.velocity.y = (ball.position.y - mouse.y) / 10;
+			ball.velocity.x = (ball.position.x - mouse.x) / 10;
+		}
+	}
+
+</script>
+<body>
+	<canvas id="canvas" height="400" width="500">Get a better browser!</canvas>
+
+</body>
